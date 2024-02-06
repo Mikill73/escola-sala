@@ -30,6 +30,19 @@
             border: 1px solid #ddd;
             border-radius: 5px;
         }
+        .botao-download {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -50,7 +63,16 @@
 
                 keys.forEach(key => {
                     const elemento = document.createElement('p');
-                    elemento.innerHTML = `<span class="titulo">${key}:</span> ${tarefa[key]}`;
+                    if (key === 'linkDownload') {
+                        const botaoDownload = document.createElement('a');
+                        botaoDownload.innerHTML = 'Download Arquivo PDF';
+                        botaoDownload.classList.add('botao-download');
+                        botaoDownload.href = tarefa[key];
+                        botaoDownload.target = '_blank';
+                        elemento.appendChild(botaoDownload);
+                    } else {
+                        elemento.innerHTML = `<span class="titulo">${key}:</span> ${tarefa[key]}`;
+                    }
                     tarefaDiv.appendChild(elemento);
                 });
 
