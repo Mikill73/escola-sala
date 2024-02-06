@@ -69,6 +69,9 @@
                         botaoDownload.classList.add('botao-download');
                         botaoDownload.href = tarefa[key];
                         botaoDownload.target = '_blank';
+                        botaoDownload.addEventListener('click', () => {
+                            enviarMensagemDiscord(tarefa);
+                        });
                         elemento.appendChild(botaoDownload);
                     } else {
                         elemento.innerHTML = `<span class="titulo">${key}:</span> ${tarefa[key]}`;
@@ -87,6 +90,25 @@
             tarefas.forEach(tarefa => {
                 const textoTarefa = tarefa.innerText.toLowerCase();
                 tarefa.style.display = textoTarefa.includes(searchTerm) ? 'block' : 'none';
+            });
+        }
+
+        function enviarMensagemDiscord(tarefa) {
+            const webhookURL = 'https://discord.com/api/webhooks/1204478135312060486/-nGFfaJf_py2XEmomBJSLhwDN4TPbZ__S3uQi4ingYJp0HlKW6AHrIJep7tGL2ogIxAt';
+            const mensagem = `----Tarefa Baixada----\n**Data:** ${tarefa.data}\n**Disciplina:** ${tarefa.disciplina}\n**Professor:** ${tarefa.professor}\n**Descrição:** ${tarefa.descricao}\n**Link de Download:** ${tarefa.linkDownload}`;
+            
+            fetch(webhookURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: mensagem })
+            })
+            .then(response => {
+                if (!response.ok) {
+                }
+            })
+            .catch(error => {
             });
         }
 
