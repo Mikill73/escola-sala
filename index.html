@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarefas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        .tarefa {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #fff;
+        }
+        .titulo {
+            font-weight: bold;
+        }
+        #pesquisa-barra {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tarefas de casa/Atividades em sala</h1>
+    <input type="text" id="pesquisa-barra" oninput="searchTarefas()" placeholder="Pesquisar tarefas">
+    <div id="tarefas-container"></div>
+
+    <script>
+        async function fetchTarefas() {
+            const response = await fetch('https://raw.githubusercontent.com/Mikill73/escola-sala/main/tarefas.txt');
+            const tarefas = await response.json();
+            const tarefasContainer = document.getElementById('tarefas-container');
+
+            tarefas.forEach(tarefa => {
+                const tarefaDiv = document.createElement('div');
+                tarefaDiv.classList.add('tarefa');
+                const keys = ['data', 'disciplina', 'professor', 'linkDownload', 'descricao'];
+
+                keys.forEach(key => {
+                    const elemento = document.createElement('p');
+                    elemento.innerHTML = `<span class="titulo">${key}:</span> ${tarefa[key]}`;
+                    tarefaDiv.appendChild(elemento);
+                });
+
+                tarefasContainer.appendChild(tarefaDiv);
+            });
+        }
+
+        function searchTarefas() {
+            const searchTerm = document.getElementById('pesquisa-barra').value.toLowerCase();
+            const tarefas = document.querySelectorAll('.tarefa');
+
+            tarefas.forEach(tarefa => {
+                const textoTarefa = tarefa.innerText.toLowerCase();
+                tarefa.style.display = textoTarefa.includes(searchTerm) ? 'block' : 'none';
+            });
+        }
+
+        fetchTarefas();
+    </script>
+</body>
+</html>
