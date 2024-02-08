@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,11 +11,9 @@
             padding: 20px;
             background-color: #f4f4f4;
         }
-
         h1 {
             color: #333;
         }
-
         .tarefa {
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -24,19 +21,36 @@
             padding: 15px;
             background-color: #fff;
         }
-
+        .conteudo {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #fff;
+        }
         .titulo {
             font-weight: bold;
         }
-
         #pesquisa-barra {
             margin-bottom: 15px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
-        
-        .botao-estilo {
+        .botao-download {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .botao-tarefa, .botao-conteudo {
             display: inline-block;
             padding: 10px 20px;
             margin-right: 10px;
@@ -52,31 +66,30 @@
             transition: background-color 0.3s;
         }
 
-        .botao-estilo:hover {
+        .botao-tarefa:hover, .botao-conteudo:hover {
             background-color: #45a049;
         }
 
-        .botao-estilo:focus {
+        .botao-tarefa:focus, .botao-conteudo:focus {
             outline: none;
         }
     </style>
 </head>
-
 <body>
     <h1>Tarefas de casa/Atividades em sala</h1>
     <h1>Criado por Fernanda e Yuri Gomes</h1>
-    <input type="text" id="pesquisa-barra" oninput="searchTarefas()" placeholder="Pesquisar tarefas">
-    <button class="botao-estilo" onclick="fetchTarefas()">Tarefas</button>
-    <button class="botao-estilo" onclick="fetchConteudos()">Conteúdos</button>
-    <div id="tarefas-container"></div>
+    <input type="text" id="pesquisa-barra" oninput="searchItens()" placeholder="Pesquisar">
+    <button class="botao-tarefa" onclick="fetchTarefas()">Tarefas</button>
+    <button class="botao-conteudo" onclick="fetchConteudos()">Conteúdos</button>
+    <div id="itens-container"></div>
 
     <script>
         async function fetchTarefas() {
             const response = await fetch('https://raw.githubusercontent.com/Mikill73/escola-sala/main/tarefas.txt');
             const tarefas = await response.json();
-            const tarefasContainer = document.getElementById('tarefas-container');
+            const itensContainer = document.getElementById('itens-container');
 
-            tarefasContainer.innerHTML = '';
+            itensContainer.innerHTML = '';
 
             tarefas.forEach(tarefa => {
                 const tarefaDiv = document.createElement('div');
@@ -88,11 +101,11 @@
                     if (key === 'linkDownload') {
                         const botaoDownload = document.createElement('a');
                         botaoDownload.innerHTML = 'Download Arquivo PDF';
-                        botaoDownload.classList.add('botao-estilo');
+                        botaoDownload.classList.add('botao-download');
                         botaoDownload.href = tarefa[key];
                         botaoDownload.target = '_blank';
                         botaoDownload.addEventListener('click', () => {
-                            enviarMensagemDiscord(tarefa);
+                            enviarMensagemDiscordTarefa(tarefa);
                         });
                         elemento.appendChild(botaoDownload);
                     } else {
@@ -101,48 +114,95 @@
                     tarefaDiv.appendChild(elemento);
                 });
 
-                tarefasContainer.appendChild(tarefaDiv);
+                itensContainer.appendChild(tarefaDiv);
             });
         }
 
         async function fetchConteudos() {
             const response = await fetch('https://raw.githubusercontent.com/Mikill73/escola-sala/main/conteudos.txt');
-            const conteudos = await response.text();
-            const tarefasContainer = document.getElementById('tarefas-container');
+            const conteudos = await response.json();
+            const itensContainer = document.getElementById('itens-container');
 
-            tarefasContainer.innerHTML = conteudos;
-        }
+            itensContainer.innerHTML = '';
 
-        function searchTarefas() {
-            const searchTerm = document.getElementById('pesquisa-barra').value.toLowerCase();
-            const tarefas = document.querySelectorAll('.tarefa');
+            conteudos.forEach(conteudo => {
+                const conteudoDiv = document.createElement('div');
+                conteudoDiv.classList.add('conteudo');
+                const keys = ['data', 'disciplina', 'autor', 'link', 'descricao'];
 
-            tarefas.forEach(tarefa => {
-                const textoTarefa = tarefa.innerText.toLowerCase();
-                tarefa.style.display = textoTarefa.includes(searchTerm) ? 'block' : 'none';
+                keys.forEach(key => {
+                    const elemento = document.createElement('p');
+                    if (key === 'link') {
+                        const botaoDownload = document.createElement('a');
+                        botaoDownload.innerHTML = 'Download Arquivo PDF';
+                        botaoDownload.classList.add('botao-download');
+                        botaoDownload.href = conteudo[key];
+                        botaoDownload.target = '_blank';
+                        botaoDownload.addEventListener('click', () => {
+                            enviarMensagemDiscordConteudo(conteudo);
+                        });
+                        elemento.appendChild(botaoDownload);
+                    } else {
+                        elemento.innerHTML = `<span class="titulo">${key}:</span> ${conteudo[key]}`;
+                    }
+                    conteudoDiv.appendChild(elemento);
+                });
+
+                itensContainer.appendChild(conteudoDiv);
             });
         }
 
-        function enviarMensagemDiscord(tarefa) {
+        function searchItens() {
+            const searchTerm = document.getElementById('pesquisa-barra').value.toLowerCase();
+            const itens = document.querySelectorAll('.tarefa, .conteudo');
+
+            itens.forEach(item => {
+                const textoItem = item.innerText.toLowerCase();
+                item.style.display = textoItem.includes(searchTerm) ? 'block' : 'none';
+            });
+        }
+
+        function enviarMensagemDiscordTarefa(tarefa) {
             const webhookURL = 'https://discord.com/api/webhooks/1204478135312060486/-nGFfaJf_py2XEmomBJSLhwDN4TPbZ__S3uQi4ingYJp0HlKW6AHrIJep7tGL2ogIxAt';
             const mensagem = `----Tarefa Baixada----\n**Data:** ${tarefa.data}\n**Disciplina:** ${tarefa.disciplina}\n**Professor:** ${tarefa.professor}\n**Descrição:** ${tarefa.descricao}\n**Link de Download:** ${tarefa.linkDownload}`;
-
+            
             fetch(webhookURL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        content: mensagem
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {}
-                })
-                .catch(error => {});
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: mensagem })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Erro ao enviar mensagem para o webhook.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar mensagem para o webhook:', error);
+            });
         }
-        fetchTarefas();
+
+        function enviarMensagemDiscordConteudo(conteudo) {
+            const webhookURL = 'https://discord.com/api/webhooks/1204986838314647602/y8vRQNrdA2gc1sW5Bcf8xxMuLn1vjWL_YO694F8aVRMYohABgUp2AKEg52AbKpFOzsHX';
+            const mensagem = `----Conteúdo Baixado----\n**Data:** ${conteudo.data}\n**Disciplina:** ${conteudo.disciplina}\n**Autor:** ${conteudo.autor}\n**Descrição:** ${conteudo.descricao}\n**Link de Download:** ${conteudo.link}`;
+            
+            fetch(webhookURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: mensagem })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Erro ao enviar mensagem para o webhook.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar mensagem para o webhook:', error);
+            });
+        }
     </script>
 </body>
-
 </html>
