@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,9 +12,11 @@
             padding: 20px;
             background-color: #f4f4f4;
         }
+
         h1 {
             color: #333;
         }
+
         .tarefa {
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -21,18 +24,22 @@
             padding: 15px;
             background-color: #fff;
         }
+
         .titulo {
             font-weight: bold;
         }
+
         #pesquisa-barra {
             margin-bottom: 15px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
-        .botao-download {
+        
+        .botao-estilo {
             display: inline-block;
             padding: 10px 20px;
+            margin-right: 10px;
             font-size: 16px;
             font-weight: bold;
             text-align: center;
@@ -42,13 +49,25 @@
             border-radius: 5px;
             cursor: pointer;
             text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .botao-estilo:hover {
+            background-color: #45a049;
+        }
+
+        .botao-estilo:focus {
+            outline: none;
         }
     </style>
 </head>
+
 <body>
     <h1>Tarefas de casa/Atividades em sala</h1>
     <h1>Criado por Fernanda e Yuri Gomes</h1>
     <input type="text" id="pesquisa-barra" oninput="searchTarefas()" placeholder="Pesquisar tarefas">
+    <button class="botao-estilo" onclick="fetchTarefas()">Tarefas</button>
+    <button class="botao-estilo" onclick="fetchConteudos()">Conteúdos</button>
     <div id="tarefas-container"></div>
 
     <script>
@@ -56,6 +75,8 @@
             const response = await fetch('https://raw.githubusercontent.com/Mikill73/escola-sala/main/tarefas.txt');
             const tarefas = await response.json();
             const tarefasContainer = document.getElementById('tarefas-container');
+
+            tarefasContainer.innerHTML = '';
 
             tarefas.forEach(tarefa => {
                 const tarefaDiv = document.createElement('div');
@@ -67,7 +88,7 @@
                     if (key === 'linkDownload') {
                         const botaoDownload = document.createElement('a');
                         botaoDownload.innerHTML = 'Download Arquivo PDF';
-                        botaoDownload.classList.add('botao-download');
+                        botaoDownload.classList.add('botao-estilo');
                         botaoDownload.href = tarefa[key];
                         botaoDownload.target = '_blank';
                         botaoDownload.addEventListener('click', () => {
@@ -84,6 +105,14 @@
             });
         }
 
+        async function fetchConteudos() {
+            const response = await fetch('https://raw.githubusercontent.com/Mikill73/escola-sala/main/conteudos.txt');
+            const conteudos = await response.text();
+            const tarefasContainer = document.getElementById('tarefas-container');
+
+            tarefasContainer.innerHTML = conteudos;
+        }
+
         function searchTarefas() {
             const searchTerm = document.getElementById('pesquisa-barra').value.toLowerCase();
             const tarefas = document.querySelectorAll('.tarefa');
@@ -97,23 +126,25 @@
         function enviarMensagemDiscord(tarefa) {
             const webhookURL = 'https://discord.com/api/webhooks/1204478135312060486/-nGFfaJf_py2XEmomBJSLhwDN4TPbZ__S3uQi4ingYJp0HlKW6AHrIJep7tGL2ogIxAt';
             const mensagem = `----Tarefa Baixada----\n**Data:** ${tarefa.data}\n**Disciplina:** ${tarefa.disciplina}\n**Professor:** ${tarefa.professor}\n**Descrição:** ${tarefa.descricao}\n**Link de Download:** ${tarefa.linkDownload}`;
-            
+
             fetch(webhookURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ content: mensagem })
-            })
-            .then(response => {
-                if (!response.ok) {
-                }
-            })
-            .catch(error => {
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        content: mensagem
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {}
+                })
+                .catch(error => {});
         }
 
+        // Por padrão, exibe as tarefas
         fetchTarefas();
     </script>
 </body>
+
 </html>
