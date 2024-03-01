@@ -81,7 +81,7 @@
     <input type="text" id="pesquisa-barra" oninput="searchItens()" placeholder="Pesquisar">
     <button class="botao-tarefa" onclick="fetchTarefas()">Tarefas</button>
     <button class="botao-conteudo" onclick="fetchConteudos()">Conteúdos</button>
-    <button class="botao-conteudo" onclick="functionInterclasse()">Interclasse</button>
+    <button class="botao-conteudo" onclick="Interclasse()">Interclasse</button>
     <div id="itens-container"></div>
 
     <script>
@@ -201,7 +201,7 @@
             });
         }
         
-function functionInterclasse() {
+function Interclasse() {
 
 var newHTML = `<!DOCTYPE html>
 <html lang="en">
@@ -293,7 +293,7 @@ var newHTML = `<!DOCTYPE html>
 document.open();
 document.write(newHTML);
 document.close();
-
+}
 </script>
 </body>
 </html>
